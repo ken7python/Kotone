@@ -15,7 +15,17 @@ channels = 1
 seconds = 5
 recording = []
 
-print("録音開始...(Enterキーで停止)")
+output_dir = './outputs'
+filename = str(input('Enter filename:'))
+if filename == '':
+    filename = 'output.mp3'
+else:
+    root, ext = os.path.splitext(filename)
+    if ext == '':
+        filename += '.mp3'
+
+
+print("Start Recording...(Press Enter to stop)")
 sd.default.samplerate = fs
 sd.default.channels = channels
 
@@ -29,16 +39,22 @@ input()
 stream.stop()
 stream.close()
 
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 audio_np = np.concatenate(recording, axis=0)
-write('temp.wav', fs, audio_np)
-print("録音完了。")
-audio = AudioSegment.from_wav('temp.wav')
+write(f'{output_dir}/temp.wav', fs, audio_np)
+print("Finished Recording.")
+audio = AudioSegment.from_wav(f'{output_dir}/temp.wav')
 
-print('ノーマライズ中...')
+print('Normalizing...')
 normalized = normalize(audio)
-normalized.export('normalized.mp3',format="mp3")
+normalized.export(f'{output_dir}/normalized.mp3',format="mp3")
 
-print('ノイズ除去...')
-y, sr = librosa.load("normalized.mp3", sr=None)
+print('Noise Reduced...')
+y, sr = librosa.load(f'{output_dir}/normalized.mp3', sr=None)
 reduced = nr.reduce_noise(y=y, sr=sr)
-sf.write('output.mp3', reduced, fs)
+sf.write(f'{output_dir}/{filename}', reduced, fs)
+
+os.remove(f'{output_dir}/temp.wav')
+os.remove(f'{output_dir}/normalized.mp3')
