@@ -49,10 +49,10 @@ audio = AudioSegment.from_wav(f'{output_dir}/temp.wav')
 
 print('Normalizing...')
 normalized = normalize(audio)
-normalized.export(f'{output_dir}/normalized.mp3',format="mp3")
+normalized.export(f'{output_dir}/normalized.wav',format="mp3")
 
 print('Noise Reduced...')
-y, sr = librosa.load(f'{output_dir}/normalized.mp3', sr=None)
+y, sr = librosa.load(f'{output_dir}/normalized.wav', sr=None)
 reduced = nr.reduce_noise(y=y, sr=sr)
 sf.write(f'{output_dir}/{filename}', reduced, fs)
 
