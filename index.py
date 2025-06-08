@@ -1,7 +1,8 @@
 from idlelib.configdialog import changes
 
 import sounddevice as sd
-from pydub.effects import normalize
+from pydub.effects import normalize,compress_dynamic_range
+
 import noisereduce as nr
 import librosa
 import soundfile as sf
@@ -51,10 +52,15 @@ print('Normalizing...')
 normalized = normalize(audio)
 normalized.export(f'{output_dir}/normalized.wav',format="mp3")
 
+print('Compresing ...')
+compressed = compress_dynamic_range(normalized)
+compressed.export(f'{output_dir}/compressed.wav',format="wav")
+
 print('Noise Reduced...')
-y, sr = librosa.load(f'{output_dir}/normalized.wav', sr=None)
+y, sr = librosa.load(f'{output_dir}/compressed.wav', sr=None)
 reduced = nr.reduce_noise(y=y, sr=sr)
 sf.write(f'{output_dir}/{filename}', reduced, fs)
 
-os.remove(f'{output_dir}/temp.wav')
-os.remove(f'{output_dir}/normalized.mp3')
+#os.remove(f'{output_dir}/temp.wav')
+#os.remove(f'{output_dir}/normalized.wav')
+#os.remove(f'{output_dir}/compressed.wav')
